@@ -5,7 +5,7 @@ import os
 import geopandas as gpd
 import osmnx as ox
 r = 1
-
+aaa = 0
 weather_api_key = "aca02f774ce3ad4985ba560f68b634ac"
 weather_root_url = "https://api.openweathermap.org/data/2.5/weather?"
 city_name = input("City: ")
@@ -67,21 +67,19 @@ def create_map(city_name, col):
         gdf = get_city_boundary(city_name)
 
         if gdf is not None and not gdf.empty:
-            # Create a base map
+
             center_point = gdf.geometry.centroid.iloc[0]
             m = folium.Map(location=[center_point.y, center_point.x], zoom_start=10)
 
-            # Add the city boundary to the map
+
             folium.GeoJson(
                 gdf,
-                name='City Boundary',
-                style_function=lambda x: {'fillColor': col, 'color': 'black', 'weight': 2, 'fillOpacity': 0.1}
-            ).add_to(m)
+                name='City Boundary',style_function=lambda x: {'fillColor': col, 'color': 'black', 'weight': 2, 'fillOpacity': 0.1}).add_to(m)
 
-            # Add layer control
+
             folium.LayerControl().add_to(m)
 
-            # Save the map
+
             output_file = f'{city_name.replace(" ", "_")}_boundary_map.html'
             m.save(output_file)
             print(f"Map saved as {output_file}")
@@ -153,14 +151,21 @@ if r.json()['cod'] == 200:
     for i in range(8):
         risk(tempnum(i), hnum(i), pnum(i), wnum(i), r)
     if risk(temp, humid, pressure, wi, r) == 0:
-        create_map(city_name, 'green')
+        aaa+= 0
     elif risk(temp,humid,pressure,wi,r) == 1:
-        create_map(city_name, 'orange')
+        aaa+=1
     elif risk(temp, humid, pressure, wi, r) == 2:
+        aaa+=2
+    else:
+        aaa+=3
+    if(0<=aaa< 8):
+        create_map(city_name,'green')
+    elif(8<= aaa < 16):
+        create_map(city_name,'orange')
+    elif (16 <= aaa < 24):
         create_map(city_name, 'red')
     else:
-        create_map(city_name, 'black')
-
+        create_map(city_name,'black')
     file_path = os.path.abspath(f'{city_name.replace(" ", "_")}_boundary_map.html')
     webbrowser.open(f"file://{file_path}")
 
